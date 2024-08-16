@@ -9,7 +9,11 @@ router.get('/', async (req: Request, res: Response) => {
     const callLogs = await CallLog.find();
     res.json(callLogs);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: 'An unknown error occurred.' });
+    }
   }
 });
 
@@ -19,7 +23,11 @@ router.post('/', async (req: Request, res: Response) => {
     await CallLog.insertMany(callLogs);
     res.status(201).json({ message: 'Call logs saved successfully!' });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    if (err instanceof Error) {
+      res.status(400).json({ message: err.message });
+    } else {
+      res.status(400).json({ message: 'An unknown error occurred.' });
+    }
   }
 });
 
