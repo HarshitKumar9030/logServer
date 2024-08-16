@@ -1,7 +1,13 @@
-import mongoose, { Schema } from 'mongoose';
-import { CallLogDocument } from '../types/types';
+import mongoose, { Schema, Document } from 'mongoose';
 
-const callLogSchema = new Schema<CallLogDocument>({
+export interface ICallLog extends Document {
+  NUMBER: string;
+  TYPE: number;
+  DATE: number;
+  DURATION: number;
+}
+
+const callLogSchema = new Schema<ICallLog>({
   NUMBER: {
     type: String,
     required: true,
@@ -20,5 +26,5 @@ const callLogSchema = new Schema<CallLogDocument>({
   },
 });
 
-const CallLog = mongoose.model<CallLogDocument>('CallLog', callLogSchema);
+const CallLog = mongoose.model<ICallLog>('CallLog', callLogSchema);
 export default CallLog;

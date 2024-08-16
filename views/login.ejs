@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-4 text-center">Login</h1>
+    <form action="/auth/login" method="POST" class="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-6">
+      <div class="mb-4">
+        <label for="email" class="block text-gray-700 font-semibold">Email</label>
+        <input type="email" name="email" id="email" class="w-full py-2 px-3 border rounded-lg" required>
+      </div>
+      <div class="mb-4">
+        <label for="password" class="block text-gray-700 font-semibold">Password</label>
+        <input type="password" name="password" id="password" class="w-full py-2 px-3 border rounded-lg" required>
+      </div>
+      <div class="flex justify-center">
+        <button type="submit" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700">Login</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
