@@ -1,59 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Call Logs</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
     <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4 text-center">Call Logs</h1>
-        <table class="min-w-full bg-white rounded-lg shadow-md">
-            <thead>
-                <tr class="w-full bg-indigo-500 text-white">
-                    <th class="py-2 px-4">ID</th>
-                    <th class="py-2 px-4">Number</th>
-                    <th class="py-2 px-4">Type</th>
-                    <th class="py-2 px-4">Date</th>
-                    <th class="py-2 px-4">Duration</th>
-                </tr>
-            </thead>
-            <tbody id="call-logs-body">
-                <!-- Data will be dynamically inserted here -->
-            </tbody>
-        </table>
+        <h1 class="text-3xl font-bold mb-4 text-center">Call Logs</h1>
+
+        <div class="mb-4 flex justify-center">
+            <input id="search-bar" type="text" placeholder="Search by Number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline max-w-lg" oninput="filterLogs()">
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-lg shadow-md">
+                <thead>
+                    <tr class="bg-indigo-500 text-white">
+                        <th class="py-2 px-4">ID</th>
+                        <th class="py-2 px-4">Number</th>
+                        <th class="py-2 px-4">Type</th>
+                        <th class="py-2 px-4">Date</th>
+                        <th class="py-2 px-4">Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="call-logs-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Call Logs Analysis</h2>
+            <canvas id="call-logs-chart"></canvas>
+        </div>
     </div>
 
     <script>
+        let allLogs = [];
+
         async function fetchCallLogs() {
             try {
                 const response = await fetch('/api/call-logs');
                 const callLogs = await response.json();
-                const tableBody = document.getElementById('call-logs-body');
-
-                tableBody.innerHTML = '';
-
-                callLogs.forEach((log) => {
-                    const row = document.createElement('tr');
-                    row.classList.add('border-b');
-
-                    row.innerHTML = `
-                        <td class="py-2 px-4">${log._id}</td>
-                        <td class="py-2 px-4">${log.NUMBER}</td>
-                        <td class="py-2 px-4">${log.TYPE === 1 ? 'Incoming' : 'Outgoing'}</td>
-                        <td class="py-2 px-4">${new Date(log.DATE).toLocaleDateString()}</td>
-                        <td class="py-2 px-4">${log.DURATION} seconds</td>
-                    `;
-
-                    tableBody.appendChild(row);
-                });
+                allLogs = callLogs;
+                displayLogs(allLogs);
+                renderChart(allLogs);
             } catch (err) {
                 console.error('Error fetching call logs:', err);
             }
         }
 
+        function displayLogs(logs) {
+            const tableBody = document.getElementById('call-logs-body');
+            tableBody.innerHTML = '';
+
+            logs.forEach((log) => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b');
+
+                row.innerHTML = `
+                    <td class="py-2 px-4">${log._id}</td>
+                    <td class="py-2 px-4">${log.NUMBER}</td>
+                    <td class="py-2 px-4">${log.TYPE === 1 ? 'Incoming' : 'Outgoing'}</td>
+                    <td class="py-2 px-4">${new Date(log.DATE).toLocaleDateString()}</td>
+                    <td class="py-2 px-4">${log.DURATION} seconds</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterLogs() {
+            const searchValue = document.getElementById('search-bar').value.trim();
+            const filteredLogs = allLogs.filter(log => log.NUMBER.includes(searchValue));
+            displayLogs(filteredLogs);
+        }
+
+        function renderChart(logs) {
+            const incomingCalls = logs.filter(log => log.TYPE === 1).length;
+            const outgoingCalls = logs.filter(log => log.TYPE === 2).length;
+
+            const callDurations = logs.map(log => log.DURATION);
+            const labels = logs.map(log => new Date(log.DATE).toLocaleDateString());
+
+            const ctx = document.getElementById('call-logs-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Incoming Calls', 'Outgoing Calls'],
+                    datasets: [{
+                        label: 'Number of Calls',
+                        data: [incomingCalls, outgoingCalls],
+                        backgroundColor: ['#6366f1', '#4f46e5'],
+                        borderColor: ['#4c51bf', '#5a67d8'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
         window.onload = fetchCallLogs;
     </script>
 </body>
+
 </html>
